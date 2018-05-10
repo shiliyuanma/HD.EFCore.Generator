@@ -36,7 +36,8 @@ namespace HD.EFCore.MySqlGenerator.Controllers
             }
 
             var dir = Path.Combine(_env.ContentRootPath, "Data");
-            var subDir = Path.Combine(dir, DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-" + new Random().Next(100, 999).ToString());
+            var subDirName = DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-" + new Random().Next(100, 999).ToString();
+            var subDir = Path.Combine(dir, subDirName);
             var filePaths = _modelScaffolder.Generate(
                     model.ConnectionString,
                     !string.IsNullOrWhiteSpace(model.TableNames)
@@ -51,12 +52,14 @@ namespace HD.EFCore.MySqlGenerator.Controllers
                     overwriteFiles: true,
                     useDatabaseNames: false);
 
-            var zipPath = $"{Path.GetFileName(subDir)}.zip";
+            var zipFileName = subDirName + ".zip";
+            var zipPath = Path.Combine(dir, zipFileName);
             ZipFile.CreateFromDirectory(subDir, zipPath);
             var data = System.IO.File.ReadAllBytes(zipPath);
             Directory.Delete(subDir, true);
+            System.IO.File.Delete(zipPath);
 
-            return File(data, "application/x-zip-compressed", zipPath);
+            return File(data, "application/x-zip-compressed", zipFileName);
         }
 
         public IActionResult Error()
