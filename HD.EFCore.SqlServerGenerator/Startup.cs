@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,8 +13,11 @@ namespace HD.EFCore.SqlServerGenerator
 {
     public class Startup
     {
+        TestOperationReporter _reporter;
+
         public Startup(IConfiguration configuration)
         {
+            _reporter = new TestOperationReporter();
             Configuration = configuration;
         }
 
@@ -22,6 +27,14 @@ namespace HD.EFCore.SqlServerGenerator
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            //ef core 代码生成的依赖注入
+            services
+                .AddSingleton<IOperationReporter>(_reporter)
+                .AddScaffolding(_reporter)
+                .AddLogging();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+            services.AddSingleton(typeof(IFileService), sp => new FileSystemFileService());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
