@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace HD.EFCore.MySqlGenerator
 {
@@ -14,6 +15,7 @@ namespace HD.EFCore.MySqlGenerator
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseConfiguration(new ConfigurationBuilder().AddEnvironmentVariables().AddCommandLine(args).Build())
+                .UseContentRoot(AppContext.BaseDirectory)
                 .UseStartup<Startup>()
                 .Build();
     }
